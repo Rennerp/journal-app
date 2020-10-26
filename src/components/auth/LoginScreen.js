@@ -1,35 +1,60 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { useForm } from '../../hooks/useForm'
-import { useDispatch } from 'react-redux'
-import { login } from '../../actions/auth'
+import React from "react";
+import { Link } from "react-router-dom";
+import { useForm } from "../../hooks/useForm";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  startGoogleLogin,
+  startLoginWithEmailPassword,
+} from "../../actions/auth";
+import { setError, removeError } from "../../actions/ui";
+import validator from "validator";
 
 export const LoginScreen = () => {
-
   const dispatch = useDispatch();
+  const { msgError } = useSelector((state) => state.ui);
 
-  const [values, handleInputChange, reset] = useForm({
-    email: 'rekefa@gmail.com',
-    password: '123456'
+  const [values, handleInputChange] = useForm({
+    email: "rekefa@gmail.com",
+    password: "123456",
   });
 
   const { email, password } = values;
 
   const handleLogin = (e) => {
     e.preventDefault();
-    dispatch(login(12345, 'Rennerp'));
-  }
+    if (isFormValid()) {
+      dispatch(startLoginWithEmailPassword(email, password));
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    dispatch(startGoogleLogin());
+  };
+
+  const isFormValid = () => {
+    if (!validator.isEmail(email)) {
+      dispatch(setError("Email is not valid"));
+      return false;
+    } else if (password.length < 5) {
+      dispatch(setError("Password should be at least 6 characters long"));
+      return false;
+    }
+
+    dispatch(removeError());
+    return true;
+  };
 
   return (
     <>
       <h3 className="auth__tittle">Login</h3>
       <form onSubmit={handleLogin}>
+        {msgError && <div className="auth__alert-error">{msgError}</div>}
+
         <label>
           <input
             type="text"
             name="email"
             className="auth__input"
-            required={true}
             value={email}
             onChange={handleInputChange}
           />
@@ -48,18 +73,19 @@ export const LoginScreen = () => {
           <div className="label-text">Password</div>
         </label>
 
-        <button
-          type="submit"
-          className="btn btn-primary btn-block"
-        >
+        <button type="submit" className="btn btn-primary btn-block">
           Login
         </button>
 
         <div className="auth__social-networks">
           <p>Login With Social Networks</p>
-          <div className="google-btn">
+          <div className="google-btn" onClick={handleGoogleLogin}>
             <div className="google-icon-wrapper">
-              <img className="google-icon" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="google button" />
+              <img
+                className="google-icon"
+                src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+                alt="google button"
+              />
             </div>
             <p className="btn-text">
               <b>Sign in with google</b>
@@ -72,6 +98,5 @@ export const LoginScreen = () => {
         </Link>
       </form>
     </>
-  )
-}
-
+  );
+};
