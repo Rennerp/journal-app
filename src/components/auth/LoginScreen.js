@@ -6,15 +6,16 @@ import {
   startGoogleLogin,
   startLoginWithEmailPassword,
 } from "../../actions/auth";
+
 import { setError, removeError } from "../../actions/ui";
 import validator from "validator";
 
 export const LoginScreen = () => {
   const dispatch = useDispatch();
-  const { msgError } = useSelector((state) => state.ui);
+  const { msgError, loading } = useSelector((state) => state.ui);
 
   const [values, handleInputChange] = useForm({
-    email: "rekefa@gmail.com",
+    email: "rennerp@gmail.com",
     password: "123456",
   });
 
@@ -73,7 +74,11 @@ export const LoginScreen = () => {
           <div className="label-text">Password</div>
         </label>
 
-        <button type="submit" className="btn btn-primary btn-block">
+        <button
+          type="submit"
+          className="btn btn-primary btn-block"
+          disabled={loading}
+        >
           Login
         </button>
 
